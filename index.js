@@ -148,7 +148,6 @@ app.post('/getSongs', jsonParser, async (req, res) => {
         if (data.next == null) {
             moreSongs = false;
         } else {
-            console.log('MORE SONGS')
             offset += 100;
         }
     }
