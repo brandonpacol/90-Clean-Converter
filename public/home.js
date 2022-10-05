@@ -1,48 +1,9 @@
 const APIController = (function() {
     
-    const clientId = localStorage.getItem('client_id');
-    const clientSecret = localStorage.getItem('client_secret');
-    const redirectUri = 'http://127.0.0.1:5500/home.html';
-    // const redirectUri = 'https://brandonpacol.github.io/90-Clean-Converter/home.html';
-
     // private methods
-    // const _getToken = async (code) => {
-    //     body_string = 'grant_type=authorization_code'+
-    //     '&code='+code+
-    //     '&redirect_uri='+encodeURI(redirectUri);
-
-    //     const result = await fetch('https://accounts.spotify.com/api/token', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type' : 'application/x-www-form-urlencoded', 
-    //             'Authorization' : 'Basic ' + btoa(clientId + ':' + clientSecret)
-    //         },
-    //         body: body_string
-    //     });
-
-    //     const data = await result.json();
-    //     localStorage.setItem('access_token', data.access_token);
-    //     return data.access_token;
-    // }
-
     const _getPlaylists = async () => {
-        const response = await fetch('/getPlaylists');
-        const playlists = await response.json();
-        return playlists;
-    }
-
-    const _getPlaylist = async (playlistId) => {
-        const result = await fetch('/getPlaylist', {
-            method: "POST",
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              playlistId : playlistId
-            })});
+        const result = await fetch('/getPlaylists');
         const data = await result.json();
-        console.log('retrieved playlist data: ' + data)
         return data;
     }
 
@@ -106,7 +67,6 @@ const APIController = (function() {
         });
 
         const data = await result.json();
-        console.log(data.tracks.items);
         return data.tracks.items;
 
     }
@@ -130,14 +90,8 @@ const APIController = (function() {
     }
 
     return {
-        // getToken(code) {
-        //     return _getToken(code);
-        // },
         getPlaylists() {
             return _getPlaylists();
-        },
-        getPlaylist(playlistId) {
-            return _getPlaylist(playlistId);
         },
         createPlaylist(name, percentageString) {
             return _createPlaylist(name, percentageString);
@@ -163,7 +117,6 @@ const UIController = (function() {
 
     //object to hold references to html selectors
     const DOMElements = {
-        hfToken: '#hidden_token',
         divPlaylistList: '#playlist-list',
         divPlaylistDetail: '.playlist',
         selectedPlaylistText: '#selected-playlist-text',
@@ -258,16 +211,6 @@ const UIController = (function() {
 
         hideLoadingBar() {
             document.querySelector(DOMElements.loadingBarDiv).style = 'display : none;';
-        },
-        
-        storeToken(value) {
-            document.querySelector(DOMElements.hfToken).value = value;
-        },
-
-        getStoredToken() {
-            return {
-                token: document.querySelector(DOMElements.hfToken).value
-            }
         }
     }
 
@@ -280,23 +223,6 @@ const APPController = (function(UICtrl, APICtrl) {
 
     // get playlists on page load
     const loadInitialPage = async () => {
-        let token = 'blank token';
-        let code = 'blank code';
-
-        // if (localStorage.getItem('auth_code') == 'undefined') {
-        //     code = await getCode();
-        //     // window.history.pushState("", "", 'http://127.0.0.1:5500/home.html');
-        // } else {
-        //     code = localStorage.getItem('auth_code');
-        // }
-
-        // if (localStorage.getItem('access_token') == 'undefined') {
-        //     token = await APICtrl.getToken(code);
-        //     UICtrl.storeToken(token);
-        // } else {
-        //     token = localStorage.getItem('access_token');
-        //     UICtrl.storeToken(token);
-        // }
 
         // gets user
         const user = await APICtrl.getUser();
@@ -313,18 +239,6 @@ const APPController = (function(UICtrl, APICtrl) {
                 UICtrl.createPlaylist('https://community.spotify.com/t5/image/serverpage/image-id/25294i2836BD1C1A31BDF2?v=v2', element.name, element.id, 'beforeend');
             }
         });
-    }
-
-    // get auth code
-    const getCode = async () => {
-        let code = null;
-        const queryString = window.location.search;
-        if (queryString.length > 0) {
-            const urlParams = new URLSearchParams(queryString);
-            code = urlParams.get('code')
-        }
-        localStorage.setItem('auth_code', code);
-        return code;
     }
 
     // select playlist
@@ -355,8 +269,6 @@ const APPController = (function(UICtrl, APICtrl) {
 
     // logout button
     DOMInputs.logoutButton.addEventListener('click', async () => {
-        localStorage.setItem('access_token', 'undefined');
-        localStorage.setItem('auth_code', 'undefined');
         window.location.replace("index.html");
     })
 
@@ -364,9 +276,6 @@ const APPController = (function(UICtrl, APICtrl) {
     DOMInputs.convertButton.addEventListener('click', async () => {
         UICtrl.disableConvertButton();
         UICtrl.showLoadingBar();
-
-        // get token
-        token = UICtrl.getStoredToken().token;
 
         let playlistName = UICtrl.getPlaylistName('p' + localStorage.getItem('selected_playlist_id'));
         UICtrl.editIsConvertingText(playlistName);        
