@@ -9,12 +9,12 @@ var SpotifyWebApi = require('spotify-web-api-node');
 var bodyParser = require('body-parser');
 
 // create application/json parser
-var jsonParser = bodyParser.json()
+var jsonParser = bodyParser.json();
  
 // create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false })
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(express.static('public'))
+app.use(express.static('public'));
 
 app.listen(port, () => {
     console.log(`Example app listening on port http://localhost:${port}`)
@@ -23,7 +23,6 @@ app.listen(port, () => {
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const redirectUri = 'http://127.0.0.1:5500/callback';
-const homepage = 'http://127.0.0.1:5500/home.html'
 const scopes = [
     'playlist-read-private',
     'playlist-modify-public',
@@ -49,9 +48,23 @@ function generateRandomString(length) {
    return result;
 }
 
+// page calls
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html')
+})
+
+app.get('/home', (req, res) => {
+    if (spotifyApi.getAccessToken() != null) {
+        res.set('Cache-Control', 'no-store')
+        res.sendFile(__dirname + '/public/home.html');
+    } else {
+        res.redirect('/');
+    }
+})
+
+// api calls
 app.get('/login', (req, res) => {
     let url = spotifyApi.createAuthorizeURL(scopes, state, showDialog);
-    console.log(url)
     res.redirect(url);
 })
 
@@ -63,7 +76,7 @@ app.get('/callback', async (req, res) => {
     const refresh_token = data.refresh_token;
     spotifyApi.setAccessToken(access_token);
     spotifyApi.setRefreshToken(refresh_token);
-    res.redirect(homepage);
+    res.redirect('/home');
 });
 
 app.get('/getPlaylists', async (req, res) => {
@@ -96,7 +109,7 @@ app.get('/getMe', async (req, res) => {
 
 app.post('/createPlaylist', jsonParser, async (req, res) => {
     const body = req.body;
-    const result = await spotifyApi.createPlaylist(body.name , { 'description': req.description, 'public': req.public });
+    const result = await spotifyApi.createPlaylist(body.name, { 'description' : body.description, 'public' : body.public });
     const data = result.body;
     res.json(data);
 })
@@ -137,4 +150,10 @@ app.post('/addToPlaylist', jsonParser, async (req, res) => {
     const uris = body.uris;
     await spotifyApi.addTracksToPlaylist(playlistId, uris);
     res.end()
+})
+
+app.get('/logout', (req, res) => {
+    spotifyApi.setAccessToken(null);
+    spotifyApi.setRefreshToken(null);
+    res.end();
 })

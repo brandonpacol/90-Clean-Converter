@@ -8,7 +8,7 @@ const APIController = (function() {
     }
 
     const _getUser = async () => {
-        const result = await fetch('/getMe')
+        const result = await fetch('/getMe');
         const data = await result.json();
         return data;
     }
@@ -89,6 +89,10 @@ const APIController = (function() {
 
     }
 
+    const _logout = () => {
+        fetch('/logout');
+    }
+
     return {
         getPlaylists() {
             return _getPlaylists();
@@ -107,6 +111,9 @@ const APIController = (function() {
         },
         getUser() {
             return _getUser();
+        },
+        logout() {
+            return _logout();
         }
     }
 })();
@@ -217,6 +224,7 @@ const UIController = (function() {
 })();
 
 const APPController = (function(UICtrl, APICtrl) {
+    const baseUrl = 'http://127.0.0.1:5500/'
 
     // get input field object ref
     const DOMInputs = UICtrl.inputField();
@@ -269,7 +277,7 @@ const APPController = (function(UICtrl, APICtrl) {
 
     // logout button
     DOMInputs.logoutButton.addEventListener('click', async () => {
-        window.location.replace("index.html");
+        APICtrl.logout();
     })
 
     // convert button
@@ -284,15 +292,13 @@ const APPController = (function(UICtrl, APICtrl) {
         let keepExplicit = !(UICtrl.getExplicit());
         let percentageString = '';
         if (keepExplicit) {
-            percentageString = ' (90% Clean) EXPRESS'
+            percentageString = ' (90% Clean)'
         } else {
             percentageString = ' (100% Clean)'
         }
-        // create new playlist bassed on selected playlist name
-        let playlistId = localStorage.getItem('selected_playlist_id');
-        const newPlaylist = await APICtrl.createPlaylist(playlistName, percentageString);
-
+        
         // get songs from selected playlist
+        let playlistId = localStorage.getItem('selected_playlist_id');
         let search_keywords = [];
         const songs = await APICtrl.getSongs(playlistId);
         songs.forEach(element => search_keywords.push({
@@ -327,6 +333,9 @@ const APPController = (function(UICtrl, APICtrl) {
             }
             UICtrl.updateLoadingBar((i/search_keywords.length)*100);
         }
+
+        // create new playlist bassed on selected playlist name
+        const newPlaylist = await APICtrl.createPlaylist(playlistName, percentageString);
 
         // add songs to created playlist
         let total_songs = uris_to_add.length;
