@@ -6,26 +6,26 @@ const APIController = (function() {
     // const redirectUri = 'https://brandonpacol.github.io/90-Clean-Converter/home.html';
 
     // private methods
-    const _getToken = async (code) => {
-        body_string = 'grant_type=authorization_code'+
-        '&code='+code+
-        '&redirect_uri='+encodeURI(redirectUri);
+    // const _getToken = async (code) => {
+    //     body_string = 'grant_type=authorization_code'+
+    //     '&code='+code+
+    //     '&redirect_uri='+encodeURI(redirectUri);
 
-        const result = await fetch('https://accounts.spotify.com/api/token', {
-            method: 'POST',
-            headers: {
-                'Content-Type' : 'application/x-www-form-urlencoded', 
-                'Authorization' : 'Basic ' + btoa(clientId + ':' + clientSecret)
-            },
-            body: body_string
-        });
+    //     const result = await fetch('https://accounts.spotify.com/api/token', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type' : 'application/x-www-form-urlencoded', 
+    //             'Authorization' : 'Basic ' + btoa(clientId + ':' + clientSecret)
+    //         },
+    //         body: body_string
+    //     });
 
-        const data = await result.json();
-        localStorage.setItem('access_token', data.access_token);
-        return data.access_token;
-    }
+    //     const data = await result.json();
+    //     localStorage.setItem('access_token', data.access_token);
+    //     return data.access_token;
+    // }
 
-    const _getPlaylists = async (token) => {
+    const _getPlaylists = async () => {
         const response = await fetch('/getPlaylists');
         const playlists = await response.json();
         return playlists;
@@ -46,13 +46,13 @@ const APIController = (function() {
         return data;
     }
 
-    const _getUser = async (token) => {
+    const _getUser = async () => {
         const result = await fetch('/getMe')
         const data = await result.json();
         return data;
     }
 
-    const _createPlaylist = async (token, playlistName, percentageString) => {
+    const _createPlaylist = async (playlistName, percentageString) => {
 
         const result = await fetch('/createPlaylist', {
             method: 'POST',
@@ -73,7 +73,7 @@ const APIController = (function() {
 
     }
 
-    const _getSongs = async (token, playlistId) => {
+    const _getSongs = async (playlistId) => {
 
         const result = await fetch('/getSongs', {
             method: "POST",
@@ -89,7 +89,7 @@ const APIController = (function() {
 
     }
 
-    const _searchSong = async (token, artist, track, uri) => {
+    const _searchSong = async (artist, track) => {
         search_string = artist + ' ' + track;
         query = encodeURIComponent(search_string.slice(0,100));
 
@@ -111,7 +111,7 @@ const APIController = (function() {
 
     }
 
-    const _addSongsToPlaylist = async (token, playlistId, uris_to_add) => {
+    const _addSongsToPlaylist = async (playlistId, uris_to_add) => {
 
         const result = await fetch('/addToPlaylist', {
             method: 'POST',
@@ -130,29 +130,29 @@ const APIController = (function() {
     }
 
     return {
-        getToken(code) {
-            return _getToken(code);
+        // getToken(code) {
+        //     return _getToken(code);
+        // },
+        getPlaylists() {
+            return _getPlaylists();
         },
-        getPlaylists(token) {
-            return _getPlaylists(token);
+        getPlaylist(playlistId) {
+            return _getPlaylist(playlistId);
         },
-        getPlaylist(token, playlistId) {
-            return _getPlaylist(token, playlistId);
+        createPlaylist(name, percentageString) {
+            return _createPlaylist(name, percentageString);
         },
-        createPlaylist(token, name, percentageString) {
-            return _createPlaylist(token, name, percentageString);
+        getSongs(playlistId) {
+            return _getSongs(playlistId)
         },
-        getSongs(token, playlistId) {
-            return _getSongs(token, playlistId)
+        searchSong(artist, track) {
+            return _searchSong(artist, track);
         },
-        searchSong(token, artist, track, uri) {
-            return _searchSong(token, artist, track, uri);
+        addSongsToPlaylist(playlistId, uris_to_add) {
+            return _addSongsToPlaylist(playlistId, uris_to_add);
         },
-        addSongsToPlaylist(token, playlistId, uris_to_add) {
-            return _addSongsToPlaylist(token, playlistId, uris_to_add);
-        },
-        getUser(token) {
-            return _getUser(token);
+        getUser() {
+            return _getUser();
         }
     }
 })();
@@ -283,27 +283,27 @@ const APPController = (function(UICtrl, APICtrl) {
         let token = 'blank token';
         let code = 'blank code';
 
-        if (localStorage.getItem('auth_code') == 'undefined') {
-            code = await getCode();
-            // window.history.pushState("", "", 'http://127.0.0.1:5500/home.html');
-        } else {
-            code = localStorage.getItem('auth_code');
-        }
+        // if (localStorage.getItem('auth_code') == 'undefined') {
+        //     code = await getCode();
+        //     // window.history.pushState("", "", 'http://127.0.0.1:5500/home.html');
+        // } else {
+        //     code = localStorage.getItem('auth_code');
+        // }
 
-        if (localStorage.getItem('access_token') == 'undefined') {
-            token = await APICtrl.getToken(code);
-            UICtrl.storeToken(token);
-        } else {
-            token = localStorage.getItem('access_token');
-            UICtrl.storeToken(token);
-        }
+        // if (localStorage.getItem('access_token') == 'undefined') {
+        //     token = await APICtrl.getToken(code);
+        //     UICtrl.storeToken(token);
+        // } else {
+        //     token = localStorage.getItem('access_token');
+        //     UICtrl.storeToken(token);
+        // }
 
         // gets user
-        const user = await APICtrl.getUser(token);
+        const user = await APICtrl.getUser();
         UICtrl.editWelcomeUser(user.display_name);
 
         //get the playlists
-        const playlists = await APICtrl.getPlaylists(token);
+        const playlists = await APICtrl.getPlaylists();
 
         //populate our playlist list
         playlists.forEach(element => {
@@ -381,11 +381,11 @@ const APPController = (function(UICtrl, APICtrl) {
         }
         // create new playlist bassed on selected playlist name
         let playlistId = localStorage.getItem('selected_playlist_id');
-        const newPlaylist = await APICtrl.createPlaylist(token, playlistName, percentageString);
+        const newPlaylist = await APICtrl.createPlaylist(playlistName, percentageString);
 
         // get songs from selected playlist
         let search_keywords = [];
-        const songs = await APICtrl.getSongs(token, playlistId);
+        const songs = await APICtrl.getSongs(playlistId);
         songs.forEach(element => search_keywords.push({
             artist : element.track.artists[0].name, 
             track : element.track.name, 
@@ -399,7 +399,7 @@ const APPController = (function(UICtrl, APICtrl) {
             console.log('Searching for song '+ (i+1));
             if (search_keywords[i].explicit) {
                 let found = false;
-                const search_results = await APICtrl.searchSong(token, search_keywords[i].artist, search_keywords[i].track, search_keywords[i].uri);
+                const search_results = await APICtrl.searchSong(search_keywords[i].artist, search_keywords[i].track, search_keywords[i].uri);
                 for (let j = 0; j < search_results.length; j++) {
                     console.log('Searching for a clean version of ' + search_keywords[i].track + '...');
                     if (!search_results[j].explicit && search_keywords[i].artist == search_results[j].artists[0].name) {
@@ -423,10 +423,10 @@ const APPController = (function(UICtrl, APICtrl) {
         let total_songs = uris_to_add.length;
         for (let i = 0; i < uris_to_add.length; i+=100) {
             if (total_songs > 100) {
-                await APICtrl.addSongsToPlaylist(token, newPlaylist.id, uris_to_add.slice(i, i+99));
+                await APICtrl.addSongsToPlaylist(newPlaylist.id, uris_to_add.slice(i, i+99));
                 total_songs = total_songs-100;
             } else {
-                await APICtrl.addSongsToPlaylist(token, newPlaylist.id, uris_to_add.slice(i, i+total_songs));
+                await APICtrl.addSongsToPlaylist(newPlaylist.id, uris_to_add.slice(i, i+total_songs));
             }
         }
 
