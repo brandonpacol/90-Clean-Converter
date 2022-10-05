@@ -29,7 +29,7 @@ const scopes = [
     'playlist-modify-private'
 ];
 const state = generateRandomString(16);
-const showDialog = false;
+const showDialog = true;
 var spotifyApi = new SpotifyWebApi({
     clientId: client_id,
     clientSecret: client_secret,
