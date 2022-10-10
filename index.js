@@ -3,16 +3,12 @@ if (process.env.NODE_ENV !== 'production') {
 }
 const express = require('express');
 const app = express();
-const port = 5500;
-const fetch = require('node-fetch');
+const port = process.env.PORT || 5500;
 var SpotifyWebApi = require('spotify-web-api-node');
 var bodyParser = require('body-parser');
 
 // create application/json parser
 var jsonParser = bodyParser.json();
- 
-// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(express.static('public'));
 
