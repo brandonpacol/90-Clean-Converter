@@ -18,7 +18,7 @@ app.listen(port, () => {
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
-const redirectUri = 'http://127.0.0.1:5500/callback';
+const redirectUri = process.env.URI + 'callback';
 const scopes = [
     'playlist-read-private',
     'playlist-modify-public',
