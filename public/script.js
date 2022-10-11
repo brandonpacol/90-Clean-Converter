@@ -224,7 +224,6 @@ const UIController = (function() {
 })();
 
 const APPController = (function(UICtrl, APICtrl) {
-    const baseUrl = 'http://127.0.0.1:5500/'
 
     // get input field object ref
     const DOMInputs = UICtrl.inputField();
@@ -252,22 +251,9 @@ const APPController = (function(UICtrl, APICtrl) {
     // select playlist
     DOMInputs.playlists.addEventListener('click', async (e) => {
         e.preventDefault();
-        let playlistEndpoint = null;
-        let playlistName = 'No playlist';
-        if (e.target.parentElement.parentElement.parentElement.id == 'playlist-list') {
-            playlistEndpoint = e.target.parentElement.parentElement.id;
-        } else if (e.target.parentElement.parentElement.id == 'playlist-list') {
-            playlistEndpoint = e.target.parentElement.id;
-        } else if (e.target.parentElement.id == 'playlist-list'){
-            playlistEndpoint = e.target.id;
-        } else {
-            playlistEndpoint = null;
-        }
-
-        if (playlistEndpoint != null) {
-            playlistName = UICtrl.getPlaylistName(playlistEndpoint);
-            playlistEndpoint = playlistEndpoint.slice(1);
-        }
+        let playlistEndpoint = e.target.closest('.playlist').id;
+        let playlistName = UICtrl.getPlaylistName(playlistEndpoint);
+        playlistEndpoint = playlistEndpoint.slice(1);
 
         console.log("clicked on " + playlistName);
         console.log('playlist id is ' + playlistEndpoint);

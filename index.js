@@ -21,6 +21,7 @@ const client_secret = process.env.CLIENT_SECRET;
 const redirectUri = process.env.URI + 'callback';
 const scopes = [
     'playlist-read-private',
+    'playlist-read-collaborative',
     'playlist-modify-public',
     'playlist-modify-private'
 ];
