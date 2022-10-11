@@ -158,14 +158,9 @@ const UIController = (function() {
         // need method to create a playlist list group item 
         createPlaylist(img, title, id , position) {
             const html = `
-            <div class="row mb-2 playlist"  id="p${id}">
-                <div class="col-sm-4 d-flex justify-content-center">
-                    <img src="${img}" class="playlist-thumbnail rounded" alt="...">
-                </div>
-                <div class="col-sm-8 text-center my-auto">
-                    <h5 class="playlist-name">${title}</h5>
-                </div>
-            </div>
+            <a href="#" id=p${id} class="playlist list-group-item list-group-item-action">
+                <h5 class='playlist-name'>${title}</h5>
+            </a>
             `;
             document.querySelector(DOMElements.divPlaylistList).insertAdjacentHTML(position, html);
         },
@@ -334,7 +329,8 @@ const APPController = (function(UICtrl, APICtrl) {
             }
         }
 
-        let playlistImage = UICtrl.getPlaylistImage('p' + localStorage.getItem('selected_playlist_id'));
+        // let playlistImage = UICtrl.getPlaylistImage('p' + localStorage.getItem('selected_playlist_id'));
+        let playlistImage = null;
         UICtrl.createPlaylist(playlistImage, newPlaylist.name, newPlaylist.id, 'afterbegin')
         UICtrl.editHasBeenConvertedText(playlistName);
         UICtrl.hideLoadingBar();
